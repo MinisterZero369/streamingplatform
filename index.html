@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Scenez Stream</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#">SCENEZ<span>STREAM</span></a>
+    <nav>
+      <button class="nav-btn" data-view="home">Home</button>
+      <button class="nav-btn" data-view="mylist">My List</button>
+      <button class="nav-btn hidden" id="adminNav" data-view="admin">Admin</button>
+    </nav>
+    <div class="top-actions">
+      <input id="searchInput" class="search" placeholder="Search titles..." />
+      <button id="authBtn" class="pill">Sign in</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" class="hero">
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <div id="heroEyebrow" class="eyebrow">FEATURED</div>
+        <h1 id="heroTitle">Your streaming platform starts here.</h1>
+        <p id="heroDesc">Upload, publish and stream your own catalog through Cloudflare Stream with Supabase powering accounts and data.</p>
+        <div class="hero-actions">
+          <button id="heroPlay" class="primary">▶ Play</button>
+          <button id="heroInfo" class="secondary">More info</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="homeView" class="view home-rows">
+      <div id="continueSection" class="hidden content-row-section">
+        <div class="row-heading"><h2>Continue Watching</h2></div>
+        <div id="continueGrid" class="netflix-rail"></div>
+      </div>
+      <div class="browse-tools">
+        <h2>Browse</h2>
+        <select id="genreFilter"><option value="">All genres</option></select>
+      </div>
+      <div id="catalogRows"></div>
+      <div id="catalog" class="hidden"></div>
+    </section>
+
+    <section id="mylistView" class="view hidden">
+      <div class="page-title"><h1>My List</h1><p>Your saved titles.</p></div>
+      <div id="myListGrid" class="rail-grid"></div>
+    </section>
+
+    <section id="adminView" class="view hidden">
+      <div class="page-title"><h1>Admin Studio</h1><p>Manage Cloudflare Stream videos and your public catalog.</p></div>
+
+      <section id="liveStudioPanel" class="panel live-studio-panel hidden">
+        <div class="section-head admin-section-head live-studio-head">
+          <div>
+            <div class="live-title-line"><h2>Live Studio</h2><span id="liveStateBadge" class="live-state-badge">● OFFLINE</span></div>
+            <p class="muted">Broadcast from OBS or another RTMPS encoder. When live, this stream automatically takes over the homepage Hero and restores your Featured Hero when you stop.</p>
+          </div>
+          <button id="refreshLiveStatusBtn" class="secondary" type="button">↻ Check live status</button>
+        </div>
+        <p id="liveStatusText" class="live-status-text">Checking live status…</p>
+
+        <div class="live-studio-grid">
+          <form id="liveSettingsForm" class="live-settings-card">
+            <h3>Public live appearance</h3>
+            <label>Live title<input id="liveTitle" value="Scenez Live" placeholder="Scenez Live"></label>
+            <label>Description<textarea id="liveDescription" rows="3" placeholder="Streaming live now on Scenez."></textarea></label>
+            <div class="image-upload-field">
+              <span class="image-upload-label">Live Hero Image</span>
+              <input id="liveHeroImage" type="hidden">
+              <input id="liveHeroImageFile" class="image-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+              <label for="liveHeroImageFile" class="image-upload-button">📁 Upload Live Hero Image</label>
+              <div id="liveHeroImagePreview" class="image-preview landscape-preview"><span>No live hero image selected</span></div>
+              <div id="liveHeroImageStatus" class="image-upload-status"></div>
+            </div>
+            <label class="live-toggle"><input type="checkbox" id="liveAutoTakeover" checked> Automatically take over the homepage Hero while live</label>
+            <button id="liveSettingsSave" class="primary wide" type="submit" disabled>Save Live Settings</button>
+          </form>
+
+          <div class="live-broadcast-card">
+            <h3>Broadcast connection</h3>
+            <p class="muted small-copy">Cloudflare Live Input</p>
+            <div id="liveInputUid" class="live-input-id">No Live Input created yet</div>
+            <div class="live-button-row">
+              <button id="createLiveInputBtn" class="primary" type="button">＋ Create Scenez Live Input</button>
+              <button id="loadLiveCredentialsBtn" class="secondary hidden" type="button">Load OBS credentials</button>
+            </div>
+            <div id="liveCredentials" class="live-credentials hidden">
+              <label>RTMPS server<div class="copy-field"><input id="liveRtmpsUrl" readonly><button id="copyRtmpsBtn" type="button">Copy</button></div></label>
+              <label>Stream key<div class="copy-field"><input id="liveStreamKey" type="password" readonly><button id="copyStreamKeyBtn" type="button">Copy</button></div></label>
+              <p class="secret-note">Keep the Stream Key private. Paste the server and key into OBS → Settings → Stream → Custom.</p>
+            </div>
+            <div id="liveActionStatus" class="library-status"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel cloudflare-panel">
+        <div class="section-head admin-section-head">
+          <div><h2>Cloudflare Library</h2><p class="muted">Videos already hosted in your Cloudflare Stream account. Add any of them to the Scenez catalog.</p></div>
+          <button id="refreshCloudflare" class="secondary" type="button">↻ Refresh videos</button>
+        </div>
+        <div id="cloudflareStatus" class="library-status">Open Admin to load your Cloudflare videos.</div>
+        <div id="cloudflareLibrary" class="cloudflare-grid"></div>
+      </section>
+
+      <section class="panel hero-manager-panel">
+        <div class="section-head admin-section-head">
+          <div>
+            <h2>Featured Hero</h2>
+            <p class="muted">Choose the single title that appears as the large hero banner on the home page.</p>
+          </div>
+          <span id="heroAdminStatus" class="hero-admin-status"></span>
+        </div>
+        <div class="hero-manager-grid">
+          <div id="heroAdminPreview" class="hero-admin-preview"></div>
+          <div class="hero-manager-controls">
+            <label>Featured title
+              <select id="heroAdminSelect"></select>
+            </label>
+            <button id="setHeroBtn" class="primary" type="button">★ Set Featured Hero</button>
+            <p class="muted small-copy">Only published titles can be used as the public hero.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="admin-layout">
+        <form id="uploadForm" class="panel form-panel">
+          <h2>Upload title</h2>
+          <label>Video file<input type="file" id="videoFile" accept="video/*" required></label>
+          <label>Title<input id="title" required placeholder="Movie title"></label>
+          <label>Description<textarea id="description" rows="4" placeholder="Synopsis"></textarea></label>
+          <div class="split">
+            <label>Release year<input id="releaseYear" type="number" min="1900" max="2100"></label>
+            <label>Rating<input id="rating" placeholder="PG-13"></label>
+          </div>
+          <label>Genres<input id="genres" placeholder="Sci-Fi, Adventure"></label>
+          <div class="image-upload-field">
+            <span class="image-upload-label">Poster Image</span>
+            <input id="posterUrl" type="hidden">
+            <input id="posterFile" class="image-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+            <label for="posterFile" class="image-upload-button">📁 Upload Poster</label>
+            <div id="posterPreview" class="image-preview poster-preview"><span>No poster selected</span></div>
+            <div id="posterUploadStatus" class="image-upload-status"></div>
+          </div>
+          <div class="image-upload-field">
+            <span class="image-upload-label">Backdrop / Hero Image</span>
+            <input id="backdropUrl" type="hidden">
+            <input id="backdropFile" class="image-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+            <label for="backdropFile" class="image-upload-button">📁 Upload Backdrop</label>
+            <div id="backdropPreview" class="image-preview landscape-preview"><span>No backdrop selected</span></div>
+            <div id="backdropUploadStatus" class="image-upload-status"></div>
+          </div>
+          <div class="checks"><label><input type="checkbox" id="featured"> Featured</label><label><input type="checkbox" id="publishNow" checked> Publish when upload finishes</label></div>
+          <button class="primary wide" type="submit">Upload to Cloudflare Stream</button>
+          <div id="uploadStatus" class="status hidden"><div class="progress"><span id="uploadBar"></span></div><p id="uploadText"></p></div>
+        </form>
+        <div class="panel">
+          <div class="section-head"><h2>Catalog manager</h2><button id="refreshAdmin" class="ghost">Refresh</button></div>
+          <div id="adminCatalog" class="admin-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="authModal" class="modal hidden">
+    <div class="modal-card auth-card">
+      <button class="close" data-close="authModal">×</button>
+      <h2 id="authTitle">Sign in</h2>
+      <p>Access your watch history and favorites.</p>
+      <input id="authName" class="hidden" placeholder="Display name">
+      <input id="authEmail" type="email" placeholder="Email">
+      <input id="authPassword" type="password" placeholder="Password">
+      <button id="authSubmit" class="primary wide">Sign in</button>
+      <button id="authToggle" class="link-btn">Need an account? Sign up</button>
+      <div id="authError" class="error"></div>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-card detail-card">
+      <button class="close" data-close="detailModal">×</button>
+      <div id="detailBackdrop" class="detail-backdrop"></div>
+      <div class="detail-body">
+        <h2 id="detailTitle"></h2>
+        <div id="detailMeta" class="meta"></div>
+        <p id="detailDesc"></p>
+        <div class="hero-actions"><button id="detailPlay" class="primary">▶ Play</button><button id="favoriteBtn" class="secondary">+ My List</button></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="importModal" class="modal hidden">
+    <div class="modal-card auth-card import-card">
+      <button class="close" data-close="importModal">×</button>
+      <h2>Add Cloudflare video</h2>
+      <p id="importCloudflareName" class="muted"></p>
+      <form id="importForm">
+        <label>Title<input id="importTitle" required placeholder="Movie title"></label>
+        <label>Description<textarea id="importDescription" rows="4" placeholder="Synopsis"></textarea></label>
+        <div class="split">
+          <label>Release year<input id="importReleaseYear" type="number" min="1900" max="2100"></label>
+          <label>Rating<input id="importRating" placeholder="PG-13"></label>
+        </div>
+        <label>Genres<input id="importGenres" placeholder="Sci-Fi, Adventure"></label>
+        <div class="image-upload-field">
+          <span class="image-upload-label">Poster Image</span>
+          <input id="importPosterUrl" type="hidden">
+          <input id="importPosterFile" class="image-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          <label for="importPosterFile" class="image-upload-button">📁 Upload Poster</label>
+          <div id="importPosterPreview" class="image-preview poster-preview"><span>Cloudflare thumbnail will be used if you do not upload one</span></div>
+          <div id="importPosterUploadStatus" class="image-upload-status"></div>
+        </div>
+        <div class="image-upload-field">
+          <span class="image-upload-label">Backdrop / Hero Image</span>
+          <input id="importBackdropUrl" type="hidden">
+          <input id="importBackdropFile" class="image-file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          <label for="importBackdropFile" class="image-upload-button">📁 Upload Backdrop</label>
+          <div id="importBackdropPreview" class="image-preview landscape-preview"><span>Cloudflare thumbnail will be used if you do not upload one</span></div>
+          <div id="importBackdropUploadStatus" class="image-upload-status"></div>
+        </div>
+        <div class="checks">
+          <label><input type="checkbox" id="importFeatured"> Featured</label>
+          <label><input type="checkbox" id="importPublished" checked> Publish now</label>
+        </div>
+        <button class="primary wide" type="submit">Add to Scenez Catalog</button>
+        <div id="importError" class="error"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="playerModal" class="player-modal hidden">
+    <button class="player-close" id="playerClose">×</button>
+    <div id="playerWrap" class="player-wrap"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
